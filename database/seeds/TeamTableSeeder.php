@@ -1,9 +1,9 @@
 <?php
 
-use App\Team;
+use App\Models\Team;
 use Illuminate\Database\Seeder;
 
-class TeamsTableSeeder extends Seeder
+class TeamTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
