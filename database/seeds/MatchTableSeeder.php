@@ -2,6 +2,7 @@
 
 use App\Models\Match;
 use App\Models\Team;
+use App\Models\League;
 
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -15,36 +16,44 @@ class MatchTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->seedFranceResults();
+        $results = [];
+        $path = database_path("./datas/football/results/");
+        $files = array_diff(scandir($path), ["..", "."]);
+
+        foreach ($files as $file) {
+            $results = array_map('str_getcsv', file($path.$file));
+            array_walk($results, function (&$a) use ($results) {
+                $a = array_combine($results[0], $a);
+            });
+            array_shift($results);
+            $this->seedResults($results);
+        }
     }
 
-    protected function seedFranceResults() {
-        $results = array_map('str_getcsv', file(database_path("./datas/football/results/france/F1.csv")));
 
-        array_walk($results, function (&$a) use ($results) {
-            $a = array_combine($results[0], $a);
-        });
-        array_shift($results);
-
+    protected function seedResults($results) {
         foreach($results as $result) {
-            // $homeTeam = Team::where("name", $result["HomeTeam"])->first();
-            // $awayTeam = Team::where("name", $result["AwayTeam"])->first();
+            if (isset($result["HomeTeam"]) || isset($result["AwayTeam"]) || isset($results["Div"])) continue;
+
+            $league = League::whereCode($result["Div"])->first();
+            $homeTeam = Team::whereName($result["HomeTeam"])->first();
+            $awayTeam = Team::whereName($result["AwayTeam"])->first();
 
             Match::create([
-                "home_team_id"              => null,
-                "away_team_id"              => null,
-                "league_id"                 => null,
+                "home_team_id"              => !is_null($homeTeam) ? $homeTeam->id : null,
+                "away_team_id"              => !is_null($awayTeam) ? $awayTeam->id : null,
+                "league_id"                 => !is_null($league) ? $league->id : null,
                 "encounter_date"            => isset($result["Date"]) ? Carbon::createFromFormat('d/m/y', $result["Date"]) : null,
-                "full_time_home_team_goals" => $result["FTHG"],
-                "full_time_away_team_goals" => $result["FTAG"],
-                "full_time_results"         => $result["FTR"],
-                "half_time_home_team_goals" => $result["HTHG"],
-                "half_time_away_team_goals" => $result["HTAG"],
-                "half_time_results"         => $result["HTR"],
-                "home_team_shots"           => $result["HS"],
-                "away_team_shots"           => $result["AS"],
-                "home_team_shots_target"    => $result["HST"],
-                "away_team_shots_target"    => $result["AST"],
+                "full_time_home_team_goals" => isset($result["FTHG"]) ? $result["FTHG"] : null,
+                "full_time_away_team_goals" => isset($result["FTAG"]) ? $result["FTAG"] : null,
+                "full_time_results"         => isset($result["FTR"]) ? $result["FTR"] : null,
+                "half_time_home_team_goals" => isset($result["HTHG"]) ? $result["HTHG"] : null,
+                "half_time_away_team_goals" => isset($result["HTAG"]) ? $result["HTAG"] : null,
+                "half_time_results"         => isset($result["HTR"]) ? $result["HTR"] : null,
+                "home_team_shots"           => isset($result["HS"]) ? $result["HS"] : null,
+                "away_team_shots"           => isset($result["AS"]) ? $result["AS"] : null,
+                "home_team_shots_target"    => isset($result["HST"]) ? $result["HST"] : null,
+                "away_team_shots_target"    => isset($result["AST"]) ? $result["AST"] : null,
                 "home_team_hit_woodwork"    => isset($result["HHW"]) ? $result["HHW"] : null,
                 "away_team_hit_woodwork"    => isset($result["AHW"]) ? $result["AHW"] : null,
                 "home_team_corners"         => isset($result["HC"]) ? $result["HC"] : null,
