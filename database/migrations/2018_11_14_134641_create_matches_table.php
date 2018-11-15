@@ -31,8 +31,12 @@ class CreateMatchesTable extends Migration
             $table->unsignedTinyInteger('away_team_shots_target')->nullable();
             $table->unsignedTinyInteger('home_team_hit_woodwork')->nullable();
             $table->unsignedTinyInteger('away_team_hit_woodwork')->nullable();
+            $table->unsignedTinyInteger('home_team_free_kicks')->nullable();
+            $table->unsignedTinyInteger('away_team_free_kicks')->nullable();
             $table->unsignedTinyInteger('home_team_corners')->nullable();
             $table->unsignedTinyInteger('away_team_corners')->nullable();
+            $table->unsignedTinyInteger('home_team_offsides')->nullable();
+            $table->unsignedTinyInteger('away_team_offsides')->nullable();
             $table->unsignedTinyInteger('home_team_fouls')->nullable();
             $table->unsignedTinyInteger('away_team_fouls')->nullable();
             $table->unsignedTinyInteger('home_team_yellow_cards')->nullable();
